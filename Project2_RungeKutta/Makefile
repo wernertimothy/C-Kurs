@@ -1,0 +1,52 @@
+# Name der ausführbaren Datei 
+TARGET = program
+
+# zu kompilierende Source Dateien
+# Beachte: keine Leerzeichen nach \\
+CSRC = 	main.c f.c define_system.c RuKu_integrate.c
+		
+# Suchpfade für Header-Dateien
+INCDIRS = include
+# Suchpfade für Bibliotheken
+LIBDIRS = lib
+# Verwendete eigene Bibliotheken
+LIBS = matrixmath
+
+
+# Compiler Flags zentral definieren
+# -Wall   : bei allen Warnungen abbrechen
+# -Wextra : besonders pingelig warnen
+# -g3     : Maximalmenge an Debug-Infos in die .exe packen
+# -m32    : 32bit .exe erzeugen (Eclipse mag den 64bit GDB nicht)
+LDFLAGS = -Wall -Wextra -g3
+CFLAGS = -Wall -Wextra -g3
+
+# Wahl der gcc Version (Name der .exe)
+CC = gcc
+
+# Namen der .o Dateien aus den .c-Dateien erzeugen
+COBJ = $(subst .c,.o,$(CSRC))
+
+# inc-Verzeichnisse um -I Option ergänzen
+INC_PARAMS = $(foreach d, $(INCDIRS), -I$d)
+# Bibliotheksverzeichnisse um -L Potion ergänzen
+LIBDIR_PARAMS = $(foreach d, $(LIBDIRS), -L$d)
+# Bibliotheken um -l ergänzen
+LIB_PARAMS = $(foreach d, $(LIBS),-l$d)
+# erzeuge ausführbare Datei
+all: $(TARGET)
+
+# linke alle .o-Dateien
+$(TARGET): $(COBJ)
+	$(CC) $(LDFLAGS) $(INC_PARAMS) $(LIBDIR_PARAMS) $^ -o $@ $(LIB_PARAMS)
+
+# erzeuge alle .o Dateien
+%.o: %.c
+	$(CC) $(CFLAGS) $(INC_PARAMS)  $< -c -o $@ 
+
+# all und clean sind keine Datei-Ziele
+.PHONY: all clean
+
+# alles wieder aufräumen
+clean:
+	rm -rf $(COBJ) $(TARGET)
